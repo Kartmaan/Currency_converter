@@ -10,6 +10,7 @@ import numpy as np
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QMessageBox
 import pyqtgraph as pg
+import pyperclip
 
 from window import Ui_MainWindow
 
@@ -67,6 +68,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.tab_conv_button_convert.clicked.connect(self.convert)
         self.tab_conv_button_swipe.clicked.connect(lambda: self.swipe(tab="conv"))
         self.tab_conv_button_clear.clicked.connect(self.clear)
+        self.tab_conv_button_copy.clicked.connect(self.copy_conv)
         # --- Chart tab
         self.tab_chart_button_swipe.clicked.connect(lambda: self.swipe(tab="chart"))
         self.tab_chart_button_run.clicked.connect(self.run_button)
@@ -455,10 +457,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.main_status.setText(text)
             return None
 
-        if rate == False:
+        elif rate == False:
             text = "Invalid API"
             self.main_status.setText(text)
             return None
+        
+        else :
+            self.main_status.setText('')
 
         # 4
         # Calculation and display
@@ -489,6 +494,18 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.tab_conv_label_info.setText("")
         self.tab_conv_button_convert.setEnabled(False)
     
+    def copy_conv(self):
+        """ Copy the converter output value in clipboard """
+        value = self.tab_conv_output.text()
+
+        if len(value) != 0:
+            pyperclip.copy(value)
+            text = 'Value copied to clipboard'
+            self.main_status.setText(text)
+        else:
+            text = 'No value to copy'
+            self.main_status.setText(text)
+
     def convert_API(self, curr1, curr2, test=(False, "", "")):
         """Acquires the rate from the API chosen by the user and 
         its key (self.api_name and self.api_key). The function 
