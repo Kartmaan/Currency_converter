@@ -14,9 +14,11 @@ class Ui_MainWindow(object):
         font.setPointSize(18)
         MainWindow.setFont(font)
         MainWindow.setTabShape(QtWidgets.QTabWidget.Rounded)
+        MainWindow.setWindowIcon(QtGui.QIcon('favicon.png'))
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
 
+        
         # ToolBox hub
         self.tab_hub = QtWidgets.QToolBox(self.centralwidget)
         self.tab_hub.setGeometry(QtCore.QRect(10, 60, 1031, 621))
