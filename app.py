@@ -13,11 +13,22 @@ import pyqtgraph as pg
 
 from window import Ui_MainWindow
 
+__version__ = '0.8'
+__author__ = 'Kartmaan'
+
+# - - - - - - - - Dataframes creation - - - - - - - -
 # Create the json currencies dataframe
+# Contains all currency names along with their code and 
+# other additional information
 with open('currencies.json', encoding="utf8") as f:
     curr_json = json.load(f)
 
 # Create the json save dataframe
+# Contains user preferences :
+# - API names and their key
+# - The last choosen API
+# - The graph refresh time interval
+# - The time and date format
 with open('save.json', encoding='utf8') as f:
     save_json = json.load(f)
 
@@ -46,7 +57,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.tab_hub.currentChanged.connect(self.tab_switch)
         # --- Option tab
         self.opt_combo_api.currentIndexChanged.connect(self.api_switch)
-        self.opt_lineEdit_apiKey.textChanged.connect(self.check_api)
+        self.opt_lineEdit_apiKey.textChanged.connect(self.check_api_key_change)
         self.opt_combo_unit.currentIndexChanged.connect(self.refresh_minimum)
         self.opt_button_save.clicked.connect(self.saveAll)
         self.opt_button_test.clicked.connect(self.test_button)
@@ -128,7 +139,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def time_master(self):
         """ Retruns the current week-day, date and time in 
-        different formats """
+        different formats according to 'self.time_format' and
+        'self.date_format' """
 
         time_form = self.time_format
         date_form = self.date_format
@@ -171,7 +183,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         return (day, date, hour)
         
     def current_time(self):
-        """ Displays the current date/time while app's running """
+        """ Displays the current date/time while app's running.
+        Runs from thread : self.thd_curr_time """
 
         while self.app_run:
             now = self.time_master()
@@ -185,6 +198,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             time.sleep(0.3)
 
     def load_save(self):
+        """ Load save.json backup and apply preferences.
+        Starts each time the program is started """
 
         # --- Retrieving the options saved in the Json dataframe
         # API
@@ -232,7 +247,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.refresh_reminder()
 
     def saveAll(self):
-        """ Apply user's preferences and save them to a file """
+        """ Apply user's preferences and save them to save.json.
+        Starts by clicking on the 'Save all' button """
 
         # --- Apply changes
         # API
@@ -293,7 +309,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         text = 'All preferences have been applied and saved'
         self.opt_label_save_remind.setText(text)
 
-    def check_api(self):
+    def check_api_key_change(self):
+        """ When the user inserts an API key different from 
+        the one saved in the backup file, the user is invited 
+        to test it by clicking on the 'TEST' button. The 'Save all' 
+        button is disabled as long as the check result is not
+        positive. """
+
         current_api = self.opt_combo_api.currentText()
         current_key = self.opt_lineEdit_apiKey.text()
 
@@ -310,6 +332,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.opt_label_api_check.setText("")
     
     def test_button(self):
+        """ Launches an API key validation test to the 
+        'self.convert_API (test = True)' function, if the 
+        API key is invalid, a window is displayed offering 
+        the user to restore the API key saved in the backup file.
+        Connect to 'TEST' button in option tab."""
+
         current_api = self.opt_combo_api.currentText()
         current_key = self.opt_lineEdit_apiKey.text()
 
@@ -334,11 +362,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             else:
                 pass
 
-        self.tested = (True, test)
-
         return test
 
     def api_switch(self):
+        """ The API key displayed changes depending on 
+        the API chosen on the comboBox """
+
         current = self.opt_combo_api.currentText()
         for api in save_json['API']:
             if api['name'] == current:
@@ -346,8 +375,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.refresh_minimum()
 
     def refresh_minimum(self):
-        """ When user changes the time refresh unit to second, the 
-        the spinBox minimum value is 30 """
+        """ Adapts the minimum value of the graph refresh 
+        intervals according to the chosen API """
 
         if self.opt_combo_api.currentText() == 'free.currconv':
             if self.opt_combo_unit.currentText() == 'Min.': # Unit = Minute
@@ -362,8 +391,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.opt_spinBox_time.setMinimum(2)
 
     def input_check(self):
-        """ Checks the value entered by the user at each key pressed, 
-        if it's not valid, the "Convert" button is disabled """
+        """ In the convert tab, checks the value entered by 
+        the user at each key pressed, if it's not valid, 
+        the "Convert" button is disabled """
 
         user_input = self.tab_conv_input.text()
 
@@ -378,7 +408,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.main_status.setText(errText)
     
     def swipe(self, tab="conv"):
-        """ Invert the 2 comboBox current indexes """
+        """ Invert the 2 comboBox current indexes in the 
+        converter tab or the graph tab """
 
         if tab == "conv":
             idx1 = self.tab_conv_curr1.currentIndex()
@@ -398,6 +429,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         3 - Get the currency rate from the choosen API 
         4 - Convertion calculation
         5 - Display
+        The rates are acquired by calling the function 
+        'self.convert_API (curr1, curr2)'
         """
         #print(self.tab_conv_curr1.currentIndex(), self.tab_conv_curr2.currentIndex())
         # 1
@@ -415,13 +448,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         # 3
         # Get rate from free.currconv API
-        """ url = (f"https://free.currconv.com/api/v7/convert?q={curr_1}_{curr_2}&compact=ultra&apiKey={self.api_key}")
-        response = requests.get(url)
-        data = json.loads(response.text)
-        rate = float(list(data.values())[0]) # Get rate """
-
-        #rate = self.freeconv_API(curr_1, curr_2)
-
         rate = self.convert_API(curr_1, curr_2)
 
         if rate == None:
@@ -464,7 +490,15 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.tab_conv_button_convert.setEnabled(False)
     
     def convert_API(self, curr1, curr2, test=(False, "", "")):
-        """ test=(True/False, api_name, api_key) """
+        """Acquires the rate from the API chosen by the user and 
+        its key (self.api_name and self.api_key). The function 
+        returns 'None' if the URL does not respond, 'False' if 
+        the API key is incorrect, the rate otherwise. 
+        The function also has a test mode which allows to 
+        check the validity of the API key, if it's correct the 
+        function does not return the rate but only 'True', 
+        'False' otherwise. 
+        test=(True/False, api_name, api_key) """
 
         if test[0] == False: # Test mode OFF
             api = self.api_name
@@ -558,12 +592,17 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     return True
     
     def run_button(self):
+        """ Starts the follow-up of a currency pair on the graph """
+        
         self.graph_run = True
 
         self.thd_graph = threading.Thread(target=self.graph_update)
         self.thd_graph.start()
 
     def graph_update(self):
+        """ Updates the graph by representing the cumulative values 
+        of rates (y axis) and hours (x axis) """
+
         self.tab_chart_button_stop.setEnabled(True)
 
         for key, value in curr_json.items():
@@ -601,6 +640,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 t-=1
     
     def graph_stop(self):
+        """ Stops the graph refresh process """
+
         if self.tab_chart_button_stop.text() == "STOP":
             self.graph_run = False
             self.tab_chart_button_stop.setText("CLEAR")
@@ -655,6 +696,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 t -= 1
 
     def refresh_reminder(self):
+        """ Display a message in the 'self.opt_groupBox_refresh' 
+        frame to notify the current refresh interval """
+
         value = self.opt_spinBox_time.value()
 
         if self.opt_combo_unit.currentText() == "Sec.":
@@ -665,6 +709,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.opt_label_refresh_remind.setText(text)
 
     def closeEvent(self, event):
+        """ End threads when closing programs """
+
         event.accept()
         self.app_run = False
         self.graph_run = False
