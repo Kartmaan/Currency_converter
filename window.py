@@ -639,7 +639,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Currency Converter"))
         self.opt_groupBox_api.setTitle(_translate("MainWindow", "API key"))
         #self.opt_combo_api.setItemText(0, _translate("MainWindow", "free.currconv.com"))
         #self.opt_combo_api.setItemText(1, _translate("MainWindow", "xe.com"))
