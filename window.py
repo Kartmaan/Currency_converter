@@ -68,6 +68,7 @@ class Ui_MainWindow(object):
         self.opt_groupBox_refresh = QtWidgets.QGroupBox(self.tab_option)
         self.opt_groupBox_refresh.setGeometry(QtCore.QRect(10, 140, 481, 241))
         self.opt_groupBox_refresh.setObjectName("opt_groupBox_refresh")
+        self.opt_groupBox_refresh.setEnabled(False) 
 
         # Label instruction
         self.opt_label_refresh_inst = QtWidgets.QLabel(self.opt_groupBox_refresh)
@@ -77,6 +78,14 @@ class Ui_MainWindow(object):
         self.opt_label_refresh_inst.setFont(font)
         self.opt_label_refresh_inst.setAlignment(QtCore.Qt.AlignCenter)
         self.opt_label_refresh_inst.setObjectName("opt_label_refresh_inst")
+        self.opt_label_refresh_inst.setHidden(True)
+
+        self.opt_label_refresh_info = QtWidgets.QLabel(self.opt_groupBox_refresh)
+        self.opt_label_refresh_info.setGeometry(QtCore.QRect(10, 30, 441, 31))
+        self.opt_label_refresh_info.setFont(font)
+        self.opt_label_refresh_info.setAlignment(QtCore.Qt.AlignCenter)
+        self.opt_label_refresh_info.setText("- - - Graph functionality in a future version - - -")
+
 
         # SpinBox time
         self.opt_spinBox_time = QtWidgets.QSpinBox(self.opt_groupBox_refresh)
@@ -584,7 +593,7 @@ class Ui_MainWindow(object):
         self.tab_chart_button_swipe.setFont(font)
         self.tab_chart_button_swipe.setObjectName("tab_chart_button_swipe")
 
-        self.tab_hub.addItem(self.tab_chart, "")
+        #self.tab_hub.addItem(self.tab_chart, "")
 
         # --------------------------------------------------------
         # - - - - - Main window - - - - -

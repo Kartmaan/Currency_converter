@@ -9,6 +9,7 @@ import socket
 import numpy as np
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QMessageBox
+import pyqtgraph as pg
 
 from window import Ui_MainWindow
 
@@ -122,6 +123,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.main_title.setText("Currency Converter")
         else: # Tab chart
             self.main_title.setText("Currency Chart")
+        
+        self.opt_label_save_remind.setText('')
 
     def time_master(self):
         """ Retruns the current week-day, date and time in 
@@ -287,6 +290,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             #json.dump(json.dumps(save_json, indent=4), outsave)
         
         # --- 
+        text = 'All preferences have been applied and saved'
+        self.opt_label_save_remind.setText(text)
 
     def check_api(self):
         current_api = self.opt_combo_api.currentText()
@@ -573,11 +578,21 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         while self.graph_run:
             rate = self.convert_API(curr_1, curr_2)
-            self.time_list.append(self.time_master()[2])
+            self.time_list.append(time.time())
             self.rate_list.append(rate)
 
             print(self.time_list)
             print(self.rate_list)
+
+            if len(self.time_list) > 1:
+                self.graph.clear()
+                x = self.time_list
+                #x = dict(enumerate(self.time_list))
+                y = self.rate_list
+                #strAxis = pg.AxisItem(orientation='bottom')
+                #strAxis.setTicks([x.items()]) 
+
+                self.graph.plot(x, y, pen = self.red_pen)
 
             t = self.refresh
             while t > 0 and self.graph_run:
