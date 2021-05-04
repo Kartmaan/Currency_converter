@@ -66,31 +66,59 @@ class Ui_MainWindow(object):
         self.opt_label_api_check.setAlignment(QtCore.Qt.AlignCenter)
         self.opt_label_api_check.setObjectName("opt_label_api_check")
 
-        # - - - - GroupBox refresh
-        self.opt_groupBox_refresh = QtWidgets.QGroupBox(self.tab_option)
-        self.opt_groupBox_refresh.setGeometry(QtCore.QRect(10, 140, 481, 241))
-        self.opt_groupBox_refresh.setObjectName("opt_groupBox_refresh")
-        self.opt_groupBox_refresh.setEnabled(False) 
+        # - - - - GroupBox graph
+        self.opt_groupBox_graph = QtWidgets.QGroupBox(self.tab_option)
+        self.opt_groupBox_graph.setGeometry(QtCore.QRect(10, 140, 481, 241))
+        self.opt_groupBox_graph.setObjectName("opt_groupBox_refresh")
+        self.opt_groupBox_graph.setEnabled(True) 
 
-        # Label instruction
-        self.opt_label_refresh_inst = QtWidgets.QLabel(self.opt_groupBox_refresh)
-        self.opt_label_refresh_inst.setGeometry(QtCore.QRect(10, 30, 441, 31))
+        # Label graph theme
+        self.opt_label_theme = QtWidgets.QLabel(self.opt_groupBox_graph)
+        self.opt_label_theme.setGeometry(QtCore.QRect(10, 30, 441, 31))
         font = QtGui.QFont()
         font.setItalic(True)
-        self.opt_label_refresh_inst.setFont(font)
-        self.opt_label_refresh_inst.setAlignment(QtCore.Qt.AlignCenter)
-        self.opt_label_refresh_inst.setObjectName("opt_label_refresh_inst")
-        self.opt_label_refresh_inst.setHidden(True)
+        self.opt_label_theme.setFont(font)
+        self.opt_label_theme.setAlignment(QtCore.Qt.AlignCenter)
+        self.opt_label_theme.setObjectName("opt_label_refresh_inst")
 
-        self.opt_label_refresh_info = QtWidgets.QLabel(self.opt_groupBox_refresh)
-        self.opt_label_refresh_info.setGeometry(QtCore.QRect(10, 30, 441, 31))
-        self.opt_label_refresh_info.setFont(font)
-        self.opt_label_refresh_info.setAlignment(QtCore.Qt.AlignCenter)
-        self.opt_label_refresh_info.setText("- - - Graph functionality in a future version - - -")
+        # Combo graph theme
+        self.opt_combo_theme = QtWidgets.QComboBox(self.opt_groupBox_graph)
+        self.opt_combo_theme.setGeometry(QtCore.QRect(185, 70, 100, 31))
+        self.opt_combo_theme.setFrame(True)
+        self.opt_combo_theme.addItems(["Light","Dark"])
 
+        # Label grid
+        self.opt_label_grid = QtWidgets.QLabel(self.opt_groupBox_graph)
+        self.opt_label_grid.setGeometry(QtCore.QRect(10, 150, 441, 31))
+        self.opt_label_grid.setFont(font)
+        self.opt_label_grid.setAlignment(QtCore.Qt.AlignCenter)
+        self.opt_label_grid.setText("Show grid")
+
+        # Label YES
+        self.opt_label_yes = QtWidgets.QLabel(self.opt_groupBox_graph)
+        self.opt_label_yes.setGeometry(QtCore.QRect(160, 185, 100, 31))
+        self.opt_label_yes.setFont(font)
+        self.opt_label_yes.setAlignment(QtCore.Qt.AlignCenter)
+        self.opt_label_yes.setText("Yes")
+
+        # Label NO
+        self.opt_label_no = QtWidgets.QLabel(self.opt_groupBox_graph)
+        self.opt_label_no.setGeometry(QtCore.QRect(228, 185, 100, 31))
+        self.opt_label_no.setFont(font)
+        self.opt_label_no.setAlignment(QtCore.Qt.AlignCenter)
+        self.opt_label_no.setText("No")
+
+        # Radio YES
+        self.opt_radio_YES = QtWidgets.QRadioButton(self.opt_groupBox_graph)
+        self.opt_radio_YES.setGeometry(QtCore.QRect(180, 185, 141, 31))
+        self.opt_radio_YES.setChecked(True)
+
+        # Radio NO
+        self.opt_radio_NO = QtWidgets.QRadioButton(self.opt_groupBox_graph)
+        self.opt_radio_NO.setGeometry(QtCore.QRect(250, 185, 141, 31))
 
         # SpinBox time
-        self.opt_spinBox_time = QtWidgets.QSpinBox(self.opt_groupBox_refresh)
+        """ self.opt_spinBox_time = QtWidgets.QSpinBox(self.opt_groupBox_graph)
         self.opt_spinBox_time.setGeometry(QtCore.QRect(150, 110, 71, 41))
         font = QtGui.QFont()
         font.setPointSize(16)
@@ -99,19 +127,21 @@ class Ui_MainWindow(object):
         self.opt_spinBox_time.setMinimum(1)
         self.opt_spinBox_time.setMaximum(180)
         self.opt_spinBox_time.setObjectName("opt_spinBox_time")
+        self.opt_spinBox_time.setHidden(True) """
 
         # ComboBox time unit
-        self.opt_combo_unit = QtWidgets.QComboBox(self.opt_groupBox_refresh)
+        """ self.opt_combo_unit = QtWidgets.QComboBox(self.opt_groupBox_graph)
         self.opt_combo_unit.setGeometry(QtCore.QRect(250, 110, 61, 41))
         self.opt_combo_unit.setFrame(True)
         self.opt_combo_unit.setObjectName("opt_combo_unit")
         self.opt_combo_unit.addItems(["Min.","Sec."])
+        self.opt_combo_unit.setHidden(True) """
 
         # Label refresh reminder
-        self.opt_label_refresh_remind = QtWidgets.QLabel(self.opt_groupBox_refresh)
+        """ self.opt_label_refresh_remind = QtWidgets.QLabel(self.opt_groupBox_graph)
         self.opt_label_refresh_remind.setGeometry(QtCore.QRect(16, 168, 431, 71))
         self.opt_label_refresh_remind.setAlignment(QtCore.Qt.AlignCenter)
-        self.opt_label_refresh_remind.setObjectName("opt_label_refresh_remind")
+        self.opt_label_refresh_remind.setObjectName("opt_label_refresh_remind") """
 
         # - - - - GroupBox time and date
         self.opt_groupBox_time = QtWidgets.QGroupBox(self.tab_option)
@@ -327,9 +357,9 @@ class Ui_MainWindow(object):
         self.tab_chart_curr2.setObjectName("tab_chart_curr2")
 
         # Button view
-        self.tab_chart_button_run = QtWidgets.QPushButton(self.tab_chart)
-        self.tab_chart_button_run.setGeometry(QtCore.QRect(743, 10, 271, 41))
-        self.tab_chart_button_run.setObjectName("tab_chart_button_view")
+        self.tab_chart_button_view = QtWidgets.QPushButton(self.tab_chart)
+        self.tab_chart_button_view.setGeometry(QtCore.QRect(743, 10, 271, 41))
+        self.tab_chart_button_view.setObjectName("tab_chart_button_view")
 
         # Frame graph
         self.tab_chart_frame_graph = QtWidgets.QFrame(self.tab_chart)
@@ -348,8 +378,9 @@ class Ui_MainWindow(object):
         self.graph.setLabel('bottom', 'Time')
 
         # Pens graph
-        self.red_pen = pg.mkPen(color=(255,0,0), width = 2)
-        self.blue_pen = pg.mkPen(color=(0,0,255), width = 2)
+        self.white_pen = pg.mkPen(color=(255,255,255), width = 1)
+        self.red_pen = pg.mkPen(color=(255,0,0), width = 1)
+        self.blue_pen = pg.mkPen(color=(0,0,255), width = 1)
 
         """ 
         x1 = [1, 2, 3, 4, 5]
@@ -379,28 +410,28 @@ class Ui_MainWindow(object):
         self.tab_chart_label_time_info.setObjectName("tab_chart_label_time_info")
 
         # Label started at
-        self.tab_chart_label_started_at = QtWidgets.QLabel(self.tab_chart_frame_info)
-        self.tab_chart_label_started_at.setGeometry(QtCore.QRect(40, 30, 91, 41))
-        self.tab_chart_label_started_at.setFrameShape(QtWidgets.QFrame.NoFrame)
-        self.tab_chart_label_started_at.setAlignment(QtCore.Qt.AlignHCenter|QtCore.Qt.AlignTop)
-        self.tab_chart_label_started_at.setWordWrap(True)
-        self.tab_chart_label_started_at.setObjectName("tab_chart_label_started_at")
+        self.tab_chart_label_from = QtWidgets.QLabel(self.tab_chart_frame_info)
+        self.tab_chart_label_from.setGeometry(QtCore.QRect(40, 30, 91, 41))
+        self.tab_chart_label_from.setFrameShape(QtWidgets.QFrame.NoFrame)
+        self.tab_chart_label_from.setAlignment(QtCore.Qt.AlignHCenter|QtCore.Qt.AlignTop)
+        self.tab_chart_label_from.setWordWrap(True)
+        self.tab_chart_label_from.setObjectName("tab_chart_label_started_at")
 
         # Label last update
-        self.tab_chart_label_last_up = QtWidgets.QLabel(self.tab_chart_frame_info)
-        self.tab_chart_label_last_up.setGeometry(QtCore.QRect(140, 30, 101, 41))
-        self.tab_chart_label_last_up.setFrameShape(QtWidgets.QFrame.NoFrame)
-        self.tab_chart_label_last_up.setAlignment(QtCore.Qt.AlignHCenter|QtCore.Qt.AlignTop)
-        self.tab_chart_label_last_up.setWordWrap(True)
-        self.tab_chart_label_last_up.setObjectName("tab_chart_label_last_up")
+        self.tab_chart_label_to = QtWidgets.QLabel(self.tab_chart_frame_info)
+        self.tab_chart_label_to.setGeometry(QtCore.QRect(140, 30, 101, 41))
+        self.tab_chart_label_to.setFrameShape(QtWidgets.QFrame.NoFrame)
+        self.tab_chart_label_to.setAlignment(QtCore.Qt.AlignHCenter|QtCore.Qt.AlignTop)
+        self.tab_chart_label_to.setWordWrap(True)
+        self.tab_chart_label_to.setObjectName("tab_chart_label_last_up")
 
         # Label next update
-        self.tab_chart_label_next_up = QtWidgets.QLabel(self.tab_chart_frame_info)
-        self.tab_chart_label_next_up.setGeometry(QtCore.QRect(85, 80, 111, 41))
-        self.tab_chart_label_next_up.setFrameShape(QtWidgets.QFrame.NoFrame)
-        self.tab_chart_label_next_up.setAlignment(QtCore.Qt.AlignHCenter|QtCore.Qt.AlignTop)
-        self.tab_chart_label_next_up.setWordWrap(True)
-        self.tab_chart_label_next_up.setObjectName("tab_chart_label_next_up")
+        self.tab_chart_label_range = QtWidgets.QLabel(self.tab_chart_frame_info)
+        self.tab_chart_label_range.setGeometry(QtCore.QRect(85, 80, 111, 41))
+        self.tab_chart_label_range.setFrameShape(QtWidgets.QFrame.NoFrame)
+        self.tab_chart_label_range.setAlignment(QtCore.Qt.AlignHCenter|QtCore.Qt.AlignTop)
+        self.tab_chart_label_range.setWordWrap(True)
+        self.tab_chart_label_range.setObjectName("tab_chart_label_next_up")
 
         # Line 1
         self.tab_chart_line_1 = QtWidgets.QFrame(self.tab_chart_frame_info)
@@ -572,10 +603,17 @@ class Ui_MainWindow(object):
         self.tab_chart_line_4.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.tab_chart_line_4.setObjectName("tab_chart_line_4")
 
-        # Button STOP
+        """ # Button STOP
         self.tab_chart_button_stop = QtWidgets.QPushButton(self.tab_chart)
         self.tab_chart_button_stop.setGeometry(QtCore.QRect(10, 480, 201, 31))
         self.tab_chart_button_stop.setObjectName("tab_chart_button_stop")
+        self.tab_chart_button_stop.setHidden(True) """
+
+        # Combobox range
+        self.tab_chart_range = QtWidgets.QComboBox(self.tab_chart)
+        self.tab_chart_range.setGeometry(QtCore.QRect(10, 480, 201, 31))
+        self.tab_chart_range.setFrame(True)
+        self.tab_chart_range.addItems(["5 days", "7 days"])
 
         # Button save
         self.tab_chart_button_save = QtWidgets.QPushButton(self.tab_chart)
@@ -595,7 +633,7 @@ class Ui_MainWindow(object):
         self.tab_chart_button_swipe.setFont(font)
         self.tab_chart_button_swipe.setObjectName("tab_chart_button_swipe")
 
-        #self.tab_hub.addItem(self.tab_chart, "")
+        self.tab_hub.addItem(self.tab_chart, "")
 
         # --------------------------------------------------------
         # - - - - - Main window - - - - -
@@ -646,11 +684,11 @@ class Ui_MainWindow(object):
         self.opt_lineEdit_apiKey.setText(_translate("MainWindow", "23a2ea907e3df0c23fb8"))
         self.opt_button_test.setText(_translate("MainWindow", "TEST"))
         self.opt_label_api_check.setText(_translate("MainWindow", ""))
-        self.opt_groupBox_refresh.setTitle(_translate("MainWindow", "Chart refresh"))
-        self.opt_label_refresh_inst.setText(_translate("MainWindow", "Define the graph refresh interval"))
+        self.opt_groupBox_graph.setTitle(_translate("MainWindow", "Graph options"))
+        self.opt_label_theme.setText(_translate("MainWindow", "Graph theme"))
         #self.opt_combo_unit.setItemText(0, _translate("MainWindow", "Min."))
         #self.opt_combo_unit.setItemText(1, _translate("MainWindow", "Sec."))
-        self.opt_label_refresh_remind.setText(_translate("MainWindow", ""))
+        #self.opt_label_refresh_remind.setText(_translate("MainWindow", ""))
         self.opt_groupBox_time.setTitle(_translate("MainWindow", "Time and date format"))
         self.opt_label_time_inst.setText(_translate("MainWindow", "Choose the time and date format to display"))
         self.opt_radio_ymd.setText(_translate("MainWindow", "yyyy/mm/dd"))
@@ -678,13 +716,13 @@ class Ui_MainWindow(object):
         self.tab_hub.setItemText(self.tab_hub.indexOf(self.tab_conv), _translate("MainWindow", "Currency Converter"))
 
 
-        self.tab_chart_button_run.setText(_translate("MainWindow", "RUN"))
+        self.tab_chart_button_view.setText(_translate("MainWindow", "VIEW"))
         self.tab_chart_label_time_info.setText(_translate("MainWindow", "Time infos"))
-        self.tab_chart_label_started_at.setText(_translate("MainWindow", "Started at \n"
+        self.tab_chart_label_from.setText(_translate("MainWindow", "From \n"
 "..."))
-        self.tab_chart_label_last_up.setText(_translate("MainWindow", "Last update \n"
+        self.tab_chart_label_to.setText(_translate("MainWindow", "To \n"
 "..."))
-        self.tab_chart_label_next_up.setText(_translate("MainWindow", "Next update in\n"
+        self.tab_chart_label_range.setText(_translate("MainWindow", "Range \n"
 "..."))
         self.tab_chart_label_last_var.setText(_translate("MainWindow", "Last variation"))
         self.tab_chart_last_var_perc.setText(_translate("MainWindow", "... %"))
@@ -700,12 +738,12 @@ class Ui_MainWindow(object):
         self.tab_chart_label_max.setText(_translate("MainWindow", "Max"))
         self.tab_chart_label_last_rate.setText(_translate("MainWindow", "Last rate"))
         self.tab_chart_last_rate.setText(_translate("MainWindow", "..."))
-        self.tab_chart_button_stop.setText(_translate("MainWindow", "STOP"))
+        #self.tab_chart_button_stop.setText(_translate("MainWindow", "STOP"))
         self.tab_chart_button_save.setText(_translate("MainWindow", "Save the graph"))
         self.tab_chart_button_copy.setText(_translate("MainWindow", "Copy rate values"))
         self.tab_chart_button_swipe.setText(_translate("MainWindow", "< >"))
 
-        self.tab_hub.setItemText(self.tab_hub.indexOf(self.tab_chart), _translate("MainWindow", "Currency Chart"))
+        self.tab_hub.setItemText(self.tab_hub.indexOf(self.tab_chart), _translate("MainWindow", "Historical graph"))
         self.main_title.setText(_translate("MainWindow", "Currency Converter"))
         self.main_status.setText(_translate("MainWindow", ""))
         self.main_time.setText(_translate("MainWindow", "Wednesday, 05/04/2021 - 12:25:14 AM"))

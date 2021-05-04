@@ -5,9 +5,10 @@ from datetime import datetime
 import threading
 import time
 import socket
+from statistics import mean
 
 import numpy as np
-from PyQt5 import QtWidgets
+from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtWidgets import QMessageBox
 import pyqtgraph as pg
 import pyperclip
@@ -39,16 +40,21 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.setupUi(self)
 
         # - - - - - - - - Variable initialisation - - - - - - - -
-        self.app_run = True
-        self.graph_run = False
+        #self.app_run = True
+        #self.graph_run = False
         self.connection_lost = False
+        self.backOnline = False
         self.api_name = ""
         self.api_key = ""
         self.api_def_key = ""
         self.time_format = "24"
         self.date_format = "dd/mm/yyyy"
-        self.refresh = 60 # Seconds
-        self.tested = (False, None) # (Tested ?, if so : test result)
+        self.grid = True
+        self.theme = "Light"
+        self.range = 7
+        self.pen = self.red_pen
+        #self.refresh = 10000 # Millisec.
+        #self.tested = (False, None) # (Tested ?, if so : test result)
 
         self.rate_list = []
         self.time_list = []
@@ -59,10 +65,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # --- Option tab
         self.opt_combo_api.currentIndexChanged.connect(self.api_switch)
         self.opt_lineEdit_apiKey.textChanged.connect(self.check_api_key_change)
-        self.opt_combo_unit.currentIndexChanged.connect(self.refresh_minimum)
+        #self.opt_combo_unit.currentIndexChanged.connect(self.refresh_minimum)
         self.opt_button_save.clicked.connect(self.saveAll)
         self.opt_button_test.clicked.connect(self.test_button)
-        self.opt_spinBox_time.valueChanged.connect(self.refresh_minimum)
+        #self.opt_spinBox_time.valueChanged.connect(self.refresh_minimum)
         # --- Converter tab
         self.tab_conv_input.textChanged.connect(self.input_check)
         self.tab_conv_button_convert.clicked.connect(self.convert)
@@ -71,12 +77,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.tab_conv_button_copy.clicked.connect(self.copy_conv)
         # --- Chart tab
         self.tab_chart_button_swipe.clicked.connect(lambda: self.swipe(tab="chart"))
-        self.tab_chart_button_run.clicked.connect(self.run_button)
-        self.tab_chart_button_stop.clicked.connect(self.graph_stop)
+        self.tab_chart_button_view.clicked.connect(self.get_historical)
+        #self.tab_chart_button_stop.clicked.connect(self.graph_stop)
 
         # - - - - - - - - Widgets initialisation - - - - - - - - 
         self.tab_conv_button_convert.setEnabled(False)
-        self.tab_chart_button_stop.setEnabled(False)
+        #self.tab_chart_button_stop.setEnabled(False)
         self.tab_chart_button_save.setEnabled(False)
         self.tab_chart_button_copy.setEnabled(False)
         #self.tab_chart_frame_graph.setHidden(True)
@@ -118,14 +124,27 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         # - - - - - - - Threads creation/start - - - - - - -
         # Current date/time thread
-        self.thd_curr_time = threading.Thread(target=self.current_time)
-        self.thd_curr_time.start()
+        """ self.thd_curr_time = threading.Thread(target=self.current_time)
+        self.thd_curr_time.start() """
+        self.timer_currTime = QtCore.QTimer()
+        self.timer_currTime.setInterval(300)
+        self.timer_currTime.timeout.connect(self.current_time)
+        self.timer_currTime.start()
 
         # Connection check thread
-        self.thd_conn_check = threading.Thread(target=self.checkConnection)
-        self.thd_conn_check.start()
+        """ self.thd_conn_check = threading.Thread(target=self.checkConnection)
+        self.thd_conn_check.start() """
+        self.timer_connCheck = QtCore.QTimer()
+        self.timer_connCheck.setInterval(6000)
+        self.timer_connCheck.timeout.connect(self.checkConnection)
+        self.timer_connCheck.start()
 
-        self.thd_graph = threading.Thread(target=self.graph_update)
+        # Graph thread
+        #self.timer_graph = QtCore.QTimer()
+        #self.timer_graph.setInterval(self.refresh)
+        #self.timer_graph.timeout.connect(self.graph_update)
+
+        #self.thd_status = threading.Thread(target=self.status_message)
 
     def tab_switch(self):
         """ Changes the app title according to the active tab """
@@ -135,7 +154,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         elif self.tab_hub.currentIndex() == 1: # Tab converter
             self.main_title.setText("Currency Converter")
         else: # Tab chart
-            self.main_title.setText("Currency Chart")
+            self.main_title.setText("Historical graph")
         
         self.opt_label_save_remind.setText('')
 
@@ -188,16 +207,15 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         """ Displays the current date/time while app's running.
         Runs from thread : self.thd_curr_time """
 
-        while self.app_run:
-            now = self.time_master()
-            weekday = now[0]
-            date = now[1]
-            hour = now[2]
+        now = self.time_master()
+        weekday = now[0]
+        date = now[1]
+        hour = now[2]
 
-            text = f"{weekday}, {date} - {hour}"
-            self.main_time.setText(text)
+        text = f"{weekday}, {date} - {hour}"
+        self.main_time.setText(text)
 
-            time.sleep(0.3)
+        #time.sleep(0.3)
 
     def load_save(self):
         """ Load save.json backup and apply preferences.
@@ -212,8 +230,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 defaultKey = api['default']
         
         # Retrieving other options
-        refresh_value = save_json['refresh_time'][0]
-        refresh_unit = save_json['refresh_time'][1]
+        #refresh_value = save_json['refresh_time'][0]
+        #refresh_unit = save_json['refresh_time'][1]
+        choosen_theme = save_json['theme']
+        grid_display = save_json['grid']
+        choosen_range = save_json['range']
         time_format = save_json['time_format']
         date_format = save_json['date_format']
 
@@ -224,8 +245,31 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.opt_combo_api.setCurrentText(apiName)
 
         self.opt_lineEdit_apiKey.setText(key)
-        self.opt_spinBox_time.setValue(refresh_value)
-        self.opt_combo_unit.setCurrentText(refresh_unit)
+
+        # Theme
+        self.opt_combo_theme.setCurrentText(choosen_theme)
+        self.theme = choosen_theme
+        if self.theme == "Light":
+            self.graph.setBackground('w')
+            self.pen = self.red_pen
+        if self.theme == "Dark":
+            self.graph.setBackground((0,0,0))
+            self.pen = self.white_pen
+
+        # Grid
+        if grid_display == 'Yes':
+            self.opt_radio_YES.setChecked(True)
+            self.grid = True
+            self.graph.showGrid(x=True, y=True)
+        else:
+            self.opt_radio_NO.setChecked(True)
+            self.grid = False
+            self.graph.showGrid(x=False, y=False)
+        
+        self.range = choosen_range
+        self.tab_chart_range.setCurrentText(f'{str(choosen_range)} days')
+        #self.opt_spinBox_time.setValue(refresh_value)
+        #self.opt_combo_unit.setCurrentText(refresh_unit)
 
         self.time_format = time_format
         if time_format == "24":
@@ -241,12 +285,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         else:
             self.opt_radio_ymd.setChecked(True) 
 
-        if refresh_unit == "Sec.":
-            self.refresh = refresh_value
+        """ if refresh_unit == "Sec.":
+            self.refresh = refresh_value * 1000
         else:
-            self.refresh = refresh_value * 60
+            self.refresh = refresh_value * 60000
         
-        self.refresh_reminder()
+        self.refresh_reminder() """
 
     def saveAll(self):
         """ Apply user's preferences and save them to save.json.
@@ -278,17 +322,31 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             time_form = "12"
             self.time_format = time_form
         
-        # Refresh
-        refresh_value = self.opt_spinBox_time.value()
-        refresh_unit = self.opt_combo_unit.currentText()
-        refresh_time = [refresh_value, refresh_unit]
+        choosen_theme = self.opt_combo_theme.currentText()
+        self.theme = choosen_theme
 
-        if refresh_unit == "Sec.":
-            self.refresh = refresh_value
+        range_val = self.tab_chart_range.currentText()
+        range_val = [int(s) for s in range_val.split() if s.isdigit()]
+        range_val = range_val[0]
+        self.range = range_val
+
+        if self.opt_radio_YES.isChecked():
+            self.grid = True
+            grid_display = 'Yes'
+        if self.opt_radio_NO.isChecked():
+            self.grid = False
+            grid_display = 'No'
+        # Refresh
+        #refresh_value = self.opt_spinBox_time.value()
+        #refresh_unit = self.opt_combo_unit.currentText()
+        #refresh_time = [refresh_value, refresh_unit]
+
+        """ if refresh_unit == "Sec.":
+            self.refresh = refresh_value * 1000
         else:
-            self.refresh = refresh_value * 60
+            self.refresh = refresh_value * 60000
         
-        self.refresh_reminder()
+        self.refresh_reminder() """
 
         # --- Save preferences in file
         save_json['choosen_api'] = apiName
@@ -299,7 +357,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 else:
                     pass
 
-        save_json['refresh_time'] = refresh_time
+        #save_json['refresh_time'] = refresh_time
+        save_json['theme'] = choosen_theme
+        save_json['grid'] = grid_display
+        save_json['range'] = range_val
         save_json['time_format'] = time_form
         save_json['date_format'] = date_form
 
@@ -374,11 +435,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         for api in save_json['API']:
             if api['name'] == current:
                 self.opt_lineEdit_apiKey.setText(api['key'])
-        self.refresh_minimum()
+        #self.refresh_minimum()
 
-    def refresh_minimum(self):
-        """ Adapts the minimum value of the graph refresh 
-        intervals according to the chosen API """
+    """ def refresh_minimum(self):
 
         if self.opt_combo_api.currentText() == 'free.currconv':
             if self.opt_combo_unit.currentText() == 'Min.': # Unit = Minute
@@ -390,7 +449,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             if self.opt_combo_unit.currentText() == 'Min': # Unit = Minute
                 self.opt_spinBox_time.setMinimum(1)
             else : # Unit = Second
-                self.opt_spinBox_time.setMinimum(2)
+                self.opt_spinBox_time.setMinimum(2) """
 
     def input_check(self):
         """ In the convert tab, checks the value entered by 
@@ -608,19 +667,24 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 else:
                     return True
     
-    def run_button(self):
-        """ Starts the follow-up of a currency pair on the graph """
+    """ def view_button(self):
         
-        self.graph_run = True
+        for key, value in curr_json.items():
+            if value['name'] == self.tab_chart_curr1.currentText():
+                curr_1 = key
+        
+        for key, value in curr_json.items():
+            if value['name'] == self.tab_chart_curr2.currentText():
+                curr_2 = key """
+        #self.graph_run = True
 
-        self.thd_graph = threading.Thread(target=self.graph_update)
-        self.thd_graph.start()
+        #self.timer_graph.start()
 
-    def graph_update(self):
+    def graph_view(self):
         """ Updates the graph by representing the cumulative values 
         of rates (y axis) and hours (x axis) """
 
-        self.tab_chart_button_stop.setEnabled(True)
+        #self.tab_chart_button_stop.setEnabled(True)
 
         for key, value in curr_json.items():
             if value['name'] == self.tab_chart_curr1.currentText():
@@ -630,34 +694,210 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             if value['name'] == self.tab_chart_curr2.currentText():
                 curr_2 = key
         
-        self.tab_chart_button_run.setEnabled(False)
+        #self.tab_chart_button_view.setEnabled(False)
 
-        while self.graph_run:
-            rate = self.convert_API(curr_1, curr_2)
-            self.time_list.append(time.time())
-            self.rate_list.append(rate)
+        rate = self.convert_API(curr_1, curr_2)
+        self.time_list.append(time.time())
+        self.rate_list.append(rate)
 
-            print(self.time_list)
-            print(self.rate_list)
+        print(self.time_list)
+        print(self.rate_list)
 
-            if len(self.time_list) > 1:
-                self.graph.clear()
-                x = self.time_list
-                #x = dict(enumerate(self.time_list))
-                y = self.rate_list
-                #strAxis = pg.AxisItem(orientation='bottom')
-                #strAxis.setTicks([x.items()]) 
+        if len(self.time_list) > 1:
+            self.graph.clear()
+            x = self.time_list
+            #x = dict(enumerate(self.time_list))
+            y = self.rate_list
+            #strAxis = pg.AxisItem(orientation='bottom')
+            #strAxis.setTicks([x.items()]) 
 
-                self.graph.plot(x, y, pen = self.red_pen)
+            self.graph.plot(x, y, pen = self.red_pen)
 
-            t = self.refresh
+            """ t = self.refresh
             while t > 0 and self.graph_run:
                 print(t)
                 time.sleep(1)
-                t-=1
+                t-=1 """
     
-    def graph_stop(self):
-        """ Stops the graph refresh process """
+    def time_range(self):
+        t_range = self.tab_chart_range.currentText()
+        t_range = [int(s) for s in t_range.split() if s.isdigit()]
+        t_range = t_range[0]
+        
+        day = 86400
+        ts_list = []
+        now = int(time.time())
+        ts_start = now - (day * t_range)
+        ts_list.append(ts_start)
+
+        i = 0
+        while now not in ts_list:
+            add = ts_list[i] + day
+            ts_list.append(add)
+            i+=1
+
+        start_api = datetime.fromtimestamp(ts_list[0])
+        start_api = start_api.strftime('%Y-%m-%d')
+        now_api = datetime.fromtimestamp(ts_list[-1])
+        now_api = now_api.strftime('%Y-%m-%d')
+
+        return [(start_api, now_api), ts_list]
+
+
+    def get_historical(self):
+        
+        # Get the currency codes
+        for key, value in curr_json.items():
+            if value['name'] == self.tab_chart_curr1.currentText():
+                curr1 = key
+        
+        for key, value in curr_json.items():
+            if value['name'] == self.tab_chart_curr2.currentText():
+                curr2 = key
+
+        # Get free.currconv API key
+        api_hist = 'free.currconv'
+        for api in save_json['API']:
+            if api['name'] == api_hist:
+                key = api['key']
+        
+        # Set time range
+        t_range = self.time_range()
+
+        # Range date for API syntax
+        api_range = t_range[0]
+        api_start = api_range[0] # From
+        api_now = api_range[1] # To
+
+        # List of timestamps in range
+        ts_list = t_range[1]
+
+        # Get JSON
+        url = f"https://free.currconv.com/api/v7/convert?q={curr1}_{curr2}&compact=ultra&date={api_start}&endDate={api_now}&apiKey={key}"
+        response = requests.get(url)
+        data = json.loads(response.text)
+        print(data)
+
+        # Generation of str dates list
+        dte_list = []
+        if self.date_format == "dd/mm/yyyy":
+            dte_form = "%d/%m/%Y"
+        elif self.date_format == "mm/dd/yyyy":
+            dte_form = "%m/%d/%Y"
+        else: # yyyy/mm/dd
+            dte_form = "%Y/%m/%d"
+
+        for ts in ts_list:
+            dte = datetime.fromtimestamp(ts)
+            dte = dte.strftime(dte_form)
+            dte_list.append(dte)
+        
+        # Rates extraction
+        rate_list = []
+        for r in data[f'{curr1}_{curr2}'].items():
+            rate_list.append(r[1])
+        
+        # GRAPH DRAW
+        self.graph_draw(dte_list, rate_list)
+
+        # GRAPH STATS
+        self.graph_stats(dte_list, rate_list)
+
+        # Set graph title
+        txt = f"From {dte_list[0]} to {dte_list[-1]}"
+        self.graph.setTitle(f"{curr1}/{curr2} - {txt}")
+        
+        print(dte_list)
+        print(rate_list)
+    
+    def graph_draw(self, d_list, r_list):
+
+        if self.grid:
+            self.graph.showGrid(x=True, y=True)
+        else :
+            self.graph.showGrid(x=False, y=False)
+        
+        if self.theme == "Light":
+            self.graph.setBackground('w')
+            self.pen = self.red_pen
+        if self.theme == "Dark":
+            self.graph.setBackground((0,0,0))
+            self.pen = self.white_pen
+
+        self.graph.clear()
+
+        y_axis = np.array(r_list)
+
+        x_dict = dict(enumerate(d_list))
+        stringAxis = pg.AxisItem(orientation='bottom')
+        stringAxis.setTicks([x_dict.items()])
+
+        self.graph.setAxisItems(axisItems={'bottom' : stringAxis})
+
+        self.graph.plot(list(x_dict.keys()), y_axis, pen= self.pen)
+
+    def graph_stats(self, d_list, r_list):
+
+        # Time range
+        dte_from = d_list[0]
+        dte_to = d_list[-1]
+        range_days = f"{self.range} days"
+
+        self.tab_chart_label_from.setText(f"From\n {dte_from}")
+        self.tab_chart_label_to.setText(f"To\n {dte_to}")
+        self.tab_chart_label_range.setText(f"Range\n {range_days}")
+
+        # Last rate
+        last_rate = r_list[-1]
+        self.tab_chart_last_rate.setText(str(last_rate))
+
+        # Last variation
+        perc_round = 4
+        abs_round = 6
+
+        b_last_rate = r_list[-2]
+        perc_var = (last_rate-b_last_rate)/b_last_rate*100
+        perc_var = round(perc_var, perc_round)
+        self.tab_chart_last_var_perc.setText(f"{str(perc_var)}%")
+
+        if last_rate > b_last_rate:
+            var_abs = last_rate - b_last_rate
+            var_abs = round(var_abs, abs_round)
+            self.tab_chart_last_var_abs.setText(f"+{var_abs}")
+        else:
+            var_abs = last_rate - b_last_rate
+            var_abs = round(var_abs, abs_round)
+            self.tab_chart_last_var_abs.setText(f"{var_abs}")
+        
+        # Total variation
+        first_rate = r_list[0]
+        perc_var = (last_rate-first_rate)/first_rate*100
+        perc_var = round(perc_var, perc_round)
+        self.tab_chart_var_total_perc.setText(f"{str(perc_var)}%")
+
+        if last_rate > first_rate:
+            var_abs = last_rate - first_rate
+            var_abs = round(var_abs, abs_round)
+            self.tab_chart_var_total_abs.setText(f"+{var_abs}")
+        else:
+            var_abs = last_rate - first_rate
+            var_abs = round(var_abs, abs_round)
+            self.tab_chart_var_total_abs.setText(f"{var_abs}")
+        
+        # Min/Max/Min
+        min_rate = min(r_list)
+        max_rate = max(r_list)
+        mean_rate = round(mean(r_list),abs_round)
+
+        self.tab_chart_min.setText(f"{str(min_rate)}")
+        self.tab_chart_max.setText(f"{str(max_rate)}")
+        self.tab_chart_mean.setText(f"{str(mean_rate)}")
+
+
+    """ def graph_stop(self):
+        #Stops the graph refresh process
+
+        self.timer_graph.stop()
 
         if self.tab_chart_button_stop.text() == "STOP":
             self.graph_run = False
@@ -669,52 +909,55 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.time_list = []
             self.graph.clear()
             self.tab_chart_button_stop.setText("STOP")
-            self.tab_chart_button_stop.setEnabled(False)
+            self.tab_chart_button_stop.setEnabled(False) """ 
+    
+    """ def status_message(self, message):
+        t = 5
+        self.main_status.setText(message)
+        time.sleep(t)
+        self.main_status.setText('') """
+
 
     def checkConnection(self, host ="8.8.8.8", port=53, timeout=3):
         """ Regularly check the connection status.
 		To do this, a regular connection is established 
 		with the Google DNS (8.8.8.8) """
+        
+        try:
+            socket.setdefaulttimeout(timeout)
+            socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, port))
 
-        backOnline = False
+            if self.backOnline:
+                self.connection_lost = False
+                self.main_status.setText("Back online")
+                print('BACK ONLINE')
+                self.opt_button_test.setEnabled(True)
+                self.tab_conv_button_convert.setEnabled(True)
+                self.tab_chart_button_view.setEnabled(True)
 
-        while self.app_run:
-            try:
-                socket.setdefaulttimeout(timeout)
-                socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, port))
-
-                if backOnline:
-                    self.connection_lost = False
-                    self.main_status.setText("Back online")
-                    self.opt_button_test.setEnabled(True)
-                    self.tab_conv_button_convert.setEnabled(True)
-                    self.tab_chart_button_run.setEnabled(True)
-
-                    backOnline = False
-                
-            except socket.error as ex: # Connection lost
-                """ A connection lost has the effect of deactivating 
-                certain buttons in order to prevent the user from 
-                launching processes requiring an internet connection. """
-
-                print(ex)
-                self.connection_lost = True
-                self.main_status.setText("NO CONNECTION")
-
-                self.opt_button_test.setEnabled(False)
-                self.tab_conv_button_convert.setEnabled(False)
-                self.tab_chart_button_run.setEnabled(False)
-
-                backOnline = True
+                self.backOnline = False
             
-            t= 9
+        except socket.error as ex: # Connection lost
+            """ A connection lost has the effect of deactivating 
+            certain buttons in order to prevent the user from 
+            launching processes requiring an internet connection. """
+
+            print("CONNECTION LOST")
+            self.connection_lost = True
+            self.main_status.setText("CONNECTION LOST")
+
+            self.opt_button_test.setEnabled(False)
+            self.tab_conv_button_convert.setEnabled(False)
+            self.tab_chart_button_view.setEnabled(False)
+
+            self.backOnline = True
+            
+            """ t= 9
             while t > 0 and self.app_run:
                 time.sleep(1)
-                t -= 1
+                t -= 1 """
 
-    def refresh_reminder(self):
-        """ Display a message in the 'self.opt_groupBox_refresh' 
-        frame to notify the current refresh interval """
+    """ def refresh_reminder(self):
 
         value = self.opt_spinBox_time.value()
 
@@ -723,17 +966,21 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         else:
             text = f"Chart will update every {value} minutes"
         
-        self.opt_label_refresh_remind.setText(text)
+        self.opt_label_refresh_remind.setText(text) """
 
     def closeEvent(self, event):
         """ End threads when closing programs """
 
         event.accept()
-        self.app_run = False
-        self.graph_run = False
-        if self.thd_graph.is_alive():
+        #self.app_run = False
+        #self.graph_run = False
+        self.timer_connCheck.stop()
+        #self.timer_graph.stop()
+        self.timer_currTime.stop()
+
+        """ if self.thd_graph.is_alive():
             self.graph_run = False
-            self.thd_graph.join()
+            self.thd_graph.join() """
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
