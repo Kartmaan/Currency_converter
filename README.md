@@ -18,6 +18,7 @@ The application is in the form of 3 tabs:
 - The API key displayed changes depending on the API selected in the drop-down menu
 - A 'TEST' button is used to check the validity of the inserted API key, if the API key is wrong, the program proposes to restore the previous one
 - The graph theme can be modified ('Light' or 'Dark')
+- User can choose to show grid on graph or not
 - The date and hour format can be modified
 - The 'Save all' button allows to save all the preferences in a JSON file, these preferences will be loaded directly the next time the application is started.
 
