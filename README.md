@@ -1,6 +1,6 @@
 # Currency_converter
 Currency_converter is a graphical interface designed with PyQt5 allows to convert currencies and view the rates history graph. 
-Rates can be retrieved from two free APIs: free.currcon and finnhub.io.
+Rates can be retrieved from two free APIs: free.currconv and finnhub.io.
 
 The application is in the form of 3 tabs:
 - Options
