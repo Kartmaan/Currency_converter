@@ -1,6 +1,6 @@
 # Currency_converter
 Currency_converter is a graphical interface designed with PyQt5 allows to convert currencies and view the rates history. 
-Rates can be retrieved from two free APIs: free.currcon and finnhub.io, however the data used to draw the graph of historical rates is only taken from free.currconv.
+Rates can be retrieved from two free APIs: free.currcon and finnhub.io.
 
 The application is in the form of 3 tabs:
 - Options
@@ -41,6 +41,12 @@ The application is in the form of 3 tabs:
 - The 'Save the graph' button allows to save the image of the graph in the current folder in .png format
 - The 'Copy rate value' copies the code of the chosen currency pairs, the dates (timestamps) and their corresponding rate to the clipboard in the form of a dictionary
 
+## Additional info
+- The data used to draw the graph of historical rates is only taken from free.currconv
+- A thread periodically analyzes the state of the Internet connection by connecting to the Google DNS, if a cut is noticed certain buttons launching processes requiring Internet will be disabled during the cut
+- Each time current tab change, the title at the top of the window changes to the name of the selected tab
+- The program retrieves the information regarding the name of currencies, their code, their local name, etc. from the currencies.json file (retrieved from https://gist.github.com/Fluidbyte/2973986)
+
 # Screenshots
 ## Currency Converter tab 
 ![conv_1](https://user-images.githubusercontent.com/11463619/117135045-b81cbe80-ada6-11eb-882c-c0583fc42bd2.png)
@@ -54,3 +60,10 @@ The application is in the form of 3 tabs:
 ![copy_1](https://user-images.githubusercontent.com/11463619/117135051-b8b55500-ada6-11eb-8830-459ab4be7ab7.png)
 ## Graph image saved
 ![save_img](https://user-images.githubusercontent.com/11463619/117135056-b94deb80-ada6-11eb-8a97-787ae8791439.png)
+
+# Requirments
+- `Python 3.8`
+- `numpy`
+- `PyQt5`
+- `pyqtgraph`
+- `pyperclip`
