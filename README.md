@@ -15,6 +15,7 @@ The application is in the form of 3 tabs:
 ## Option tab
 - The user can choose their API from a drop-down menu
 - For each API a key is proposed by default but it can be modified and saved
+- The API key displayed changes depending on the API selected in the drop-down menu
 - A 'TEST' button is used to check the validity of the inserted API key, if the API key is wrong, the program proposes to restore the previous one
 - The graph theme can be modified ('Light' or 'Dark')
 - The date and hour format can be modified
