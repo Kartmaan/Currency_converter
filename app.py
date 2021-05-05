@@ -16,7 +16,7 @@ import pyperclip
 
 from window import Ui_MainWindow
 
-__version__ = '1.0'
+__version__ = '1.0.1'
 __author__ = 'Kartmaan'
 
 # - - - - - - - - Dataframes creation - - - - - - - -
@@ -194,7 +194,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         
     def current_time(self):
         """ Displays the current date/time while app's running.
-        Runs from thread : self.thd_curr_time """
+        Runs from timer : self.timer_currTime """
 
         now = self.time_master()
         weekday = now[0]
@@ -203,8 +203,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         text = f"{weekday}, {date} - {hour}"
         self.main_time.setText(text)
-
-        #time.sleep(0.3)
 
     def load_save(self):
         """ Load save.json backup and apply preferences.
@@ -253,15 +251,18 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.grid = False
             self.graph.showGrid(x=False, y=False)
         
+        # Time range
         self.range = choosen_range
         self.tab_chart_range.setCurrentText(f'{str(choosen_range)} days')
 
+        # Time format
         self.time_format = time_format
         if time_format == "24":
             self.opt_radio_24.setChecked(True)
         else:
             self.opt_radio_12.setChecked(True)
 
+        # Date format
         self.date_format = date_format
         if date_format == "dd/mm/yyyy":
             self.opt_radio_dmy.setChecked(True)
@@ -300,14 +301,17 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             time_form = "12"
             self.time_format = time_form
         
+        # Theme
         choosen_theme = self.opt_combo_theme.currentText()
         self.theme = choosen_theme
 
+        # Time range
         range_val = self.tab_chart_range.currentText()
         range_val = [int(s) for s in range_val.split() if s.isdigit()]
         range_val = range_val[0]
         self.range = range_val
 
+        # Grid
         if self.opt_radio_YES.isChecked():
             self.grid = True
             grid_display = 'Yes'
@@ -323,7 +327,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     api['key'] = apiKey
                 else:
                     pass
-
+        
+        # save.json file editing
         save_json['theme'] = choosen_theme
         save_json['grid'] = grid_display
         save_json['range'] = range_val
@@ -333,7 +338,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         with open('save.json', 'w') as outsave:
             json.dump(save_json, outsave)
         
-        # --- 
+        # Confirmation text
         text = 'All preferences have been applied and saved'
         self.opt_label_save_remind.setText(text)
 
@@ -422,12 +427,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         """ Invert the 2 comboBox current indexes in the 
         converter tab or the graph tab """
 
-        if tab == "conv":
+        if tab == "conv": # In converter tab
             idx1 = self.tab_conv_curr1.currentIndex()
             idx2 = self.tab_conv_curr2.currentIndex()
             self.tab_conv_curr1.setCurrentIndex(idx2)
             self.tab_conv_curr2.setCurrentIndex(idx1)
-        else:
+        else: # In graph tab
             idx1 = self.tab_chart_curr1.currentIndex()
             idx2 = self.tab_chart_curr2.currentIndex()
             self.tab_chart_curr1.setCurrentIndex(idx2)
@@ -617,22 +622,35 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     return True
     
     def time_range(self):
+        """ Depending on the time interval chosen for the display 
+        of the historical graph, the function generates in a tuple 
+        a start and end date of the interval in the syntax required 
+        for the URL of the free.currconv API. The function also 
+        returns in a list the timestamps of each day composing 
+        this interval. """
+
+        # Retrieves the time interval selected in the comboBox 
+        # by extracting the number displayed in the selected text
         t_range = self.tab_chart_range.currentText()
         t_range = [int(s) for s in t_range.split() if s.isdigit()]
         t_range = t_range[0]
         
-        day = 86400
+        day = 86400 # 1 day in seconds
         ts_list = []
-        now = int(time.time())
-        ts_start = now - (day * t_range)
+        now = int(time.time()) # Now in timestamps
+        ts_start = now - (day * t_range) # Now -n days in timestamp
         ts_list.append(ts_start)
 
+        # Timestamps list generation
         i = 0
         while now not in ts_list:
             add = ts_list[i] + day
             ts_list.append(add)
             i+=1
 
+        # The first and last timestamp are converted to a str 
+        # date to match the format required by the 
+        # free.currconv API URL
         start_api = datetime.fromtimestamp(ts_list[0])
         start_api = start_api.strftime('%Y-%m-%d')
         now_api = datetime.fromtimestamp(ts_list[-1])
@@ -642,7 +660,16 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
 
     def get_historical(self):
-        """ Get historical data of choosen currency pair """
+        """ Get historical data of choosen currency pair.
+
+        The API chosen for the display of historical values is 
+        free.currconv which seems to have the best compromise 
+        among the free APIs. Other APIs offered more detailed 
+        information but only for major currency pairs 
+        (EUR, USD, GBP ...), free.currconv only displays historical 
+        data for the last 8 days maximum but does so for all 
+        currencies, which seems to me suitable for 
+        a wider utility."""
         
         # Get the currency codes
         for key, value in curr_json.items():
@@ -679,7 +706,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         data = json.loads(response.text)
         #print(data)
 
-        # Generation of str dates list
+        # Generation of str dates list depending on the format 
+        # chosen by the user
         dte_list = []
         if self.date_format == "dd/mm/yyyy":
             dte_form = "%d/%m/%Y"
@@ -693,12 +721,20 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             dte = dte.strftime(dte_form)
             dte_list.append(dte)
         
-        # Rates extraction
+        # Rates extraction from JSON
         rate_list = []
         for r in data[f'{curr1}_{curr2}'].items():
             rate_list.append(r[1])
         
+        # The rate list is copied outside the function to be 
+        # used by self.copy_graph
         self.rate_list = rate_list
+
+        # Time range display
+        range_val = self.tab_chart_range.currentText()
+        range_val = [int(s) for s in range_val.split() if s.isdigit()]
+        range_val = range_val[0]
+        self.range = range_val
         
         # GRAPH DRAW
         self.graph_draw(dte_list, rate_list)
@@ -709,19 +745,17 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # Set graph title
         txt = f"{dte_list[0]} to {dte_list[-1]}"
         self.graph.setTitle(f"{curr1}/{curr2} - {txt}")
-        
-        #print(dte_list)
-        #print(rate_list)
     
     def graph_draw(self, d_list, r_list):
-        """ Draw the graph
-        x = dates, y = rates """
+        """ Draw the graph : x = dates, y = rates """
 
+        # Show grid yes/no
         if self.grid:
             self.graph.showGrid(x=True, y=True)
         else :
             self.graph.showGrid(x=False, y=False)
         
+        # Set the choosen theme
         if self.theme == "Light":
             self.graph.setBackground('w')
             self.pen = self.red_pen
@@ -733,6 +767,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         y_axis = np.array(r_list)
 
+        # The x axis displays dates in str format and not 
+        # numeric values (unlike the y axis), a diversion 
+        # must be done in order to match each str element 
+        # with a numeric value, so that the graph can be 
+        # drawn first, then the axis labels are 
+        # replaced by the corresponding date strings
         x_dict = dict(enumerate(d_list))
         stringAxis = pg.AxisItem(orientation='bottom')
         stringAxis.setTicks([x_dict.items()])
@@ -804,16 +844,19 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.tab_chart_mean.setText(f"{str(mean_rate)}")
     
     def save_graph(self):
+        """ Save the image of the graph in the current folder 
+        in .png format """
+
         title = f"{self.currs_graph[0]}_{self.currs_graph[1]}"
         export = exporters.ImageExporter(self.graph.plotItem)
 
-        #name = QtGui.QFileDialog.getSaveFileName(self, 'Save File')
         export.export(f'{title}.png')
 
         self.main_status.setText("Graph saved successfully")
     
     def copy_graph(self):
-        """ Copy the data from the graph as a dictionary
+        """ Copy the data from the graph as a dictionary 
+        in the clipboard
         - Currency pair
         - Timestamps
         - Rates """

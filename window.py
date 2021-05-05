@@ -17,7 +17,6 @@ class Ui_MainWindow(object):
         MainWindow.setWindowIcon(QtGui.QIcon('favicon.png'))
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
-
         
         # ToolBox hub
         self.tab_hub = QtWidgets.QToolBox(self.centralwidget)
@@ -116,32 +115,6 @@ class Ui_MainWindow(object):
         # Radio NO
         self.opt_radio_NO = QtWidgets.QRadioButton(self.opt_groupBox_graph)
         self.opt_radio_NO.setGeometry(QtCore.QRect(250, 185, 141, 31))
-
-        # SpinBox time
-        """ self.opt_spinBox_time = QtWidgets.QSpinBox(self.opt_groupBox_graph)
-        self.opt_spinBox_time.setGeometry(QtCore.QRect(150, 110, 71, 41))
-        font = QtGui.QFont()
-        font.setPointSize(16)
-        self.opt_spinBox_time.setFont(font)
-        self.opt_spinBox_time.setAlignment(QtCore.Qt.AlignCenter)
-        self.opt_spinBox_time.setMinimum(1)
-        self.opt_spinBox_time.setMaximum(180)
-        self.opt_spinBox_time.setObjectName("opt_spinBox_time")
-        self.opt_spinBox_time.setHidden(True) """
-
-        # ComboBox time unit
-        """ self.opt_combo_unit = QtWidgets.QComboBox(self.opt_groupBox_graph)
-        self.opt_combo_unit.setGeometry(QtCore.QRect(250, 110, 61, 41))
-        self.opt_combo_unit.setFrame(True)
-        self.opt_combo_unit.setObjectName("opt_combo_unit")
-        self.opt_combo_unit.addItems(["Min.","Sec."])
-        self.opt_combo_unit.setHidden(True) """
-
-        # Label refresh reminder
-        """ self.opt_label_refresh_remind = QtWidgets.QLabel(self.opt_groupBox_graph)
-        self.opt_label_refresh_remind.setGeometry(QtCore.QRect(16, 168, 431, 71))
-        self.opt_label_refresh_remind.setAlignment(QtCore.Qt.AlignCenter)
-        self.opt_label_refresh_remind.setObjectName("opt_label_refresh_remind") """
 
         # - - - - GroupBox time and date
         self.opt_groupBox_time = QtWidgets.QGroupBox(self.tab_option)
@@ -382,15 +355,6 @@ class Ui_MainWindow(object):
         self.red_pen = pg.mkPen(color=(255,0,0), width = 1)
         self.blue_pen = pg.mkPen(color=(0,0,255), width = 1)
 
-        """ 
-        x1 = [1, 2, 3, 4, 5]
-        x1 = np.array(x1)
-
-        y1 = [3.1454, 3.1484, 3.1424, 3.1452, 3.1462]
-        y1 = np.array(y1)
-
-        self.graph.plot(x1, y1, pen = self.red_pen) """
-
         # Frame info chart
         self.tab_chart_frame_info = QtWidgets.QFrame(self.tab_chart)
         self.tab_chart_frame_info.setGeometry(QtCore.QRect(737, 69, 281, 441))
@@ -603,12 +567,6 @@ class Ui_MainWindow(object):
         self.tab_chart_line_4.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.tab_chart_line_4.setObjectName("tab_chart_line_4")
 
-        """ # Button STOP
-        self.tab_chart_button_stop = QtWidgets.QPushButton(self.tab_chart)
-        self.tab_chart_button_stop.setGeometry(QtCore.QRect(10, 480, 201, 31))
-        self.tab_chart_button_stop.setObjectName("tab_chart_button_stop")
-        self.tab_chart_button_stop.setHidden(True) """
-
         # Combobox range
         self.tab_chart_range = QtWidgets.QComboBox(self.tab_chart)
         self.tab_chart_range.setGeometry(QtCore.QRect(10, 480, 201, 31))
@@ -679,16 +637,11 @@ class Ui_MainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Currency Converter"))
         self.opt_groupBox_api.setTitle(_translate("MainWindow", "API key"))
-        #self.opt_combo_api.setItemText(0, _translate("MainWindow", "free.currconv.com"))
-        #self.opt_combo_api.setItemText(1, _translate("MainWindow", "xe.com"))
         self.opt_lineEdit_apiKey.setText(_translate("MainWindow", "23a2ea907e3df0c23fb8"))
         self.opt_button_test.setText(_translate("MainWindow", "TEST"))
         self.opt_label_api_check.setText(_translate("MainWindow", ""))
         self.opt_groupBox_graph.setTitle(_translate("MainWindow", "Graph options"))
         self.opt_label_theme.setText(_translate("MainWindow", "Graph theme"))
-        #self.opt_combo_unit.setItemText(0, _translate("MainWindow", "Min."))
-        #self.opt_combo_unit.setItemText(1, _translate("MainWindow", "Sec."))
-        #self.opt_label_refresh_remind.setText(_translate("MainWindow", ""))
         self.opt_groupBox_time.setTitle(_translate("MainWindow", "Time and date format"))
         self.opt_label_time_inst.setText(_translate("MainWindow", "Choose the time and date format to display"))
         self.opt_radio_ymd.setText(_translate("MainWindow", "yyyy/mm/dd"))
@@ -702,7 +655,6 @@ class Ui_MainWindow(object):
         self.opt_button_save.setText(_translate("MainWindow", "Save all"))
         self.opt_label_save_remind.setText(_translate("MainWindow", ""))
 
-
         self.tab_hub.setItemText(self.tab_hub.indexOf(self.tab_option), _translate("MainWindow", "Options"))
         self.tab_conv_button_convert.setText(_translate("MainWindow", "CONVERT"))
         self.tab_conv_output.setText(_translate("MainWindow", ""))
@@ -714,7 +666,6 @@ class Ui_MainWindow(object):
         self.tab_conv_button_copy.setText(_translate("MainWindow", "Copy"))
         self.tab_conv_button_swipe.setText(_translate("MainWindow", "< >"))
         self.tab_hub.setItemText(self.tab_hub.indexOf(self.tab_conv), _translate("MainWindow", "Currency Converter"))
-
 
         self.tab_chart_button_view.setText(_translate("MainWindow", "VIEW"))
         self.tab_chart_label_time_info.setText(_translate("MainWindow", "Time infos"))
@@ -738,7 +689,6 @@ class Ui_MainWindow(object):
         self.tab_chart_label_max.setText(_translate("MainWindow", "Max"))
         self.tab_chart_label_last_rate.setText(_translate("MainWindow", "Last rate"))
         self.tab_chart_last_rate.setText(_translate("MainWindow", "..."))
-        #self.tab_chart_button_stop.setText(_translate("MainWindow", "STOP"))
         self.tab_chart_button_save.setText(_translate("MainWindow", "Save the graph"))
         self.tab_chart_button_copy.setText(_translate("MainWindow", "Copy rate values"))
         self.tab_chart_button_swipe.setText(_translate("MainWindow", "< >"))
