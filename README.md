@@ -1,6 +1,6 @@
 # Currency_converter
 Currency_converter is a graphical interface designed with PyQt5 allows to convert currencies and view the rates history graph. 
-Rates can be retrieved from two free APIs: free.currcon and finnhub.io.
+Rates can be retrieved from two free APIs: free.currconv and finnhub.io.
 
 The application is in the form of 3 tabs:
 - Options
@@ -15,8 +15,10 @@ The application is in the form of 3 tabs:
 ## Option tab
 - The user can choose their API from a drop-down menu
 - For each API a key is proposed by default but it can be modified and saved
+- The API key displayed changes depending on the API selected in the drop-down menu
 - A 'TEST' button is used to check the validity of the inserted API key, if the API key is wrong, the program proposes to restore the previous one
 - The graph theme can be modified ('Light' or 'Dark')
+- User can choose to show grid on graph or not
 - The date and hour format can be modified
 - The 'Save all' button allows to save all the preferences in a JSON file, these preferences will be loaded directly the next time the application is started.
 
