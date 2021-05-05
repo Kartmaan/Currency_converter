@@ -46,6 +46,8 @@ The application is in the form of 3 tabs:
 - A thread periodically analyzes the state of the Internet connection by connecting to the Google DNS, if a cut is noticed certain buttons launching processes requiring Internet will be disabled during the cut
 - Each time current tab change, the title at the top of the window changes to the name of the selected tab
 - The program retrieves the information regarding the name of currencies, their code, their local name, etc. from the currencies.json file (retrieved from https://gist.github.com/Fluidbyte/2973986)
+- Each time the application is started, the save.json file is loaded in order to apply the user's preferences (API chosen, the scope of the historical data in days 'range', the choosen graph theme, the choice to display graph grid or not, the time format and the date format). 
+- The name of the APIs as well as their key are entered in the save.json file, these are browsed each time the application is started in order to fill in the API comboBoxes in the option tab and to pre-fill the field dedicated to API keys.
 
 # Screenshots
 ## Currency Converter tab 
