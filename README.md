@@ -51,6 +51,9 @@ The application is in the form of 3 tabs:
 - Each time the application is started, the save.json file is loaded in order to apply the user's preferences (API chosen, the scope of the historical data in days 'range', the choosen graph theme, the choice to display graph grid or not, the time format and the date format). 
 - The name of the APIs as well as their key are entered in the save.json file, these are browsed each time the application is started in order to fill in the API comboBoxes in the option tab and to pre-fill the field dedicated to API keys.
 
+# Features video
+https://user-images.githubusercontent.com/11463619/118803051-2c755880-b8a3-11eb-976e-5e8c5c9e3877.mp4
+
 # Screenshots
 ## Currency Converter tab 
 ![conv_1](https://user-images.githubusercontent.com/11463619/117135045-b81cbe80-ada6-11eb-882c-c0583fc42bd2.png)
